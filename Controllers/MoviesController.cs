@@ -21,7 +21,8 @@ namespace MvcMovie.Controllers
 
         // GET: Movies
         // GET: Movies
-    public async Task<IActionResult> Index(string movieGenre, string searchString)
+    //  public async Task<IActionResult> Index(string movieGenre, string searchString)
+    public async Task<IActionResult> Index(string movieGenre, string searchString, string lowerBound, string higherBound)
     {
         // Use LINQ to get list of genres.
         IQueryable<string> genreQuery = from m in _context.Movie
@@ -29,6 +30,12 @@ namespace MvcMovie.Controllers
                                         select m.Genre;
         var movies = from m in _context.Movie
                     select m;
+
+        // IQueryable<decimal> priceQuery = from p in _context.Movie
+        //                                 orderby p.Price
+        //                                 select p.Price;
+        // var price = from p in _context.Movie
+        //             select p;
 
         if (!string.IsNullOrEmpty(searchString))
         {
@@ -38,6 +45,21 @@ namespace MvcMovie.Controllers
         if (!string.IsNullOrEmpty(movieGenre))
         {
             movies = movies.Where(x => x.Genre == movieGenre);
+        }
+
+        //LowerBound
+        if (!string.IsNullOrEmpty(lowerBound))
+        {
+            decimal l;
+            Decimal.TryParse(lowerBound, out l);
+            movies = movies.Where(y => y.Price > l);
+        }
+        //HigherBound
+        if (!string.IsNullOrEmpty(higherBound))
+        {
+            decimal h;
+            Decimal.TryParse(higherBound, out h);
+            movies = movies.Where(j => j.Price < h);
         }
 
         var movieGenreVM = new MovieGenreViewModel
